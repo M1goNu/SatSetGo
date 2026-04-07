@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useCart } from "../context/cartContext";
 import { useNavigation } from "../context/navigationContext";
 import { useTheme } from "../context/themeContext";
+import { selectCartCount } from "../store/cartSlice";
+import { useAppSelector } from "../store/hooks";
 import { sharedStyles as styles } from "../styleSheets/componentsStyle";
 
 // ─── NAVBAR ──────────────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ interface NavbarProps {
 
 export function Navbar({ title = "SatSetGo", onMenuPress, showBack = false }: NavbarProps) {
   const { theme } = useTheme();
-  const { cartCount } = useCart();
+  const cartCount  = useAppSelector(selectCartCount);
   const { goBack, navigate } = useNavigation();
 
   return (

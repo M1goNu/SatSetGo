@@ -9,8 +9,10 @@ import {
 } from "react-native";
 import { EmptyState, Navbar, PrimaryButton } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
-import { Transaction, useHistory } from "../context/historyContext";
+import { Transaction } from "../context/historyContext";
 import { useTheme } from "../context/themeContext";
+import { selectHistory } from "../store/historySlice";
+import { useAppSelector } from "../store/hooks";
 import { historyStyles as styles } from "../styleSheets/screensStyle";
 
 // ─── TRANSACTION DETAIL MODAL ─────────────────────────────────────────────────
@@ -101,7 +103,7 @@ function HistoryCard({ transaction, onDetail }: HistoryCardProps) {
 // ─── HISTORY SCREEN ───────────────────────────────────────────────────────────
 export default function HistoryScreen() {
   const { theme } = useTheme();
-  const { history } = useHistory();
+  const history = useAppSelector(selectHistory);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);

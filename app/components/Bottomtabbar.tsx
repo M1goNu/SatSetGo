@@ -4,9 +4,10 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useCart } from "../context/cartContext";
 import { ScreenName, useNavigation } from "../context/navigationContext";
 import { useTheme } from "../context/themeContext";
+import { selectCartCount } from "../store/cartSlice";
+import { useAppSelector } from "../store/hooks";
 import { bottomTabStyles as styles } from "../styleSheets/componentsStyle";
 
 // ─── TAB CONFIG ───────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ interface TabButtonProps {
 
 function TabButton({ tab, isActive, onPress }: TabButtonProps) {
   const { theme } = useTheme();
-  const { cartCount } = useCart();
+  const cartCount  = useAppSelector(selectCartCount);
 
   const showBadge = tab.screen === "cart" && cartCount > 0;
 

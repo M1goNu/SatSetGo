@@ -10,10 +10,11 @@ import {
 import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 import { EmptyState, Navbar, Toast } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
-import { useCart } from "../context/cartContext";
 import { Product } from "../context/productContext";
 import { useTheme } from "../context/themeContext";
 import { useWishlist } from "../context/wishlistContext";
+import { addToCart } from "../store/cartSlice";
+import { useAppDispatch } from "../store/hooks";
 import { wishlistStyles as styles } from "../styleSheets/screensStyle";
 
 
@@ -126,7 +127,7 @@ function WishlistItem({ product, onDelete, onAddToCart }: WishlistItemProps) {
 export default function WishlistScreen() {
   const { theme } = useTheme();
   const { wishlist, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const dispatch = useAppDispatch(); 
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const [toastMsg, setToastMsg] = React.useState("");
@@ -147,7 +148,7 @@ export default function WishlistScreen() {
 
   const handleAddToCart = (product: Product) => {
     removeFromWishlist(product.id);
-    addToCart(product);
+    dispatch(addToCart(product));
     showToast(`${product.name} ditambahkan ke keranjang!`);
   };
 

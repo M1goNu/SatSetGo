@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useCart } from "../context/cartContext";
 import { Product } from "../context/productContext";
 import { useTheme } from "../context/themeContext";
 import { useWishlist } from "../context/wishlistContext";
+import { addToCart, selectCart } from "../store/cartSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { productCardStyles as styles } from "../styleSheets/componentsStyle";
 
 interface ProductCardProps {
@@ -19,8 +20,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onToast }: ProductCardProps) {
   const { theme } = useTheme();
-  const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const dispatch = useAppDispatch();
+  const cart = useAppSelector(selectCart);
+  const isInCart = cart.some((x) => x.id === product.id);
 
   const inWishlist = isInWishlist(product.id);
   const cartScale = useRef(new Animated.Value(1)).current;
@@ -34,7 +37,7 @@ export function ProductCard({ product, onToast }: ProductCardProps) {
   };
 
   const handleCart = () => {
-    addToCart(product);
+    dispatch(addToCart(product));
     animatePop(cartScale);
     onToast?.(`${product.name} ditambahkan ke keranjang!`);
   };

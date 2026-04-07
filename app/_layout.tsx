@@ -1,10 +1,10 @@
 import React from "react";
 import { StatusBar, View } from "react-native";
+import { Provider } from "react-redux";
 import { shell } from "./appStyle";
+import { store } from "./store";
 
 // ── Context Providers ──────────────────────────────────────────────────────
-import { CartProvider } from "./context/cartContext";
-import { HistoryProvider } from "./context/historyContext";
 import { NavigationProvider } from "./context/navigationContext";
 import { ProductProvider } from "./context/productContext";
 import { ThemeProvider, useTheme } from "./context/themeContext";
@@ -14,8 +14,6 @@ import { WishlistProvider } from "./context/wishlistContext";
 import { AppNavigator } from "./components/appNavigator";
 import { BottomTabBar } from "./components/Bottomtabbar";
 
-// ─── INNER SHELL ──────────────────────────────────────────────────────────────
-// Separated so it can consume ThemeContext for StatusBar colors
 function AppShell() {
   const { theme } = useTheme();
 
@@ -26,11 +24,7 @@ function AppShell() {
         backgroundColor={theme.navbar}
         translucent={false}
       />
-
-      {/* Active screen rendered here */}
       <AppNavigator />
-
-      {/* Persistent bottom tab bar */}
       <BottomTabBar />
     </View>
   );
@@ -39,18 +33,16 @@ function AppShell() {
 // ─── ROOT LAYOUT ──────────────────────────────────────────────────────────────
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <ProductProvider>
-        <CartProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <ProductProvider>
           <WishlistProvider>
-            <HistoryProvider>
               <NavigationProvider>
                 <AppShell />
               </NavigationProvider>
-            </HistoryProvider>
           </WishlistProvider>
-        </CartProvider>
-      </ProductProvider>
-    </ThemeProvider>
+        </ProductProvider>
+      </ThemeProvider>
+    </Provider>
   );
 }

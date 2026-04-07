@@ -8,10 +8,11 @@ import {
 } from "react-native";
 import { Navbar } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
-import { useCart } from "../context/cartContext";
-import { useHistory } from "../context/historyContext";
 import { useTheme } from "../context/themeContext";
 import { useWishlist } from "../context/wishlistContext";
+import { selectCart } from "../store/cartSlice";
+import { selectHistory } from "../store/historySlice";
+import { useAppSelector } from "../store/hooks";
 import { profileStyles as styles } from "../styleSheets/screensStyle";
 
 // ─── STAT CARD ────────────────────────────────────────────────────────────────
@@ -43,8 +44,8 @@ const PROFILE_IMAGE = {uri: 'https://randomuser.me/api/portraits/men/9.jpg'}; //
 export default function ProfileScreen() {
   const { theme, isDark, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const { history } = useHistory();
-  const { cart } = useCart();
+  const history = useAppSelector(selectHistory);
+  const cart = useAppSelector(selectCart);
   const { wishlist } = useWishlist();
 
   const totalSpent = history.reduce((sum, tx) => sum + tx.total, 0);

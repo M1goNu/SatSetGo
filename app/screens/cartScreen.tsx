@@ -11,9 +11,18 @@ import {
 import { SPACING } from "../appStyle";
 import { EmptyState, Navbar, PrimaryButton } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
-import { CartItem, useCart } from "../context/cartContext";
-import { useHistory } from "../context/historyContext";
+import { CartItem } from "../context/cartContext";
 import { useTheme } from "../context/themeContext";
+import {
+  clearCart, clearCartError,
+  decreaseQty,
+  increaseQty,
+  selectCart,
+  selectCartError,
+  selectTotalPrice
+} from "../store/cartSlice";
+import { addTransaction, clearHistoryError, selectHistoryError } from "../store/historySlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { cartStyles as styles } from "../styleSheets/screensStyle";
 
 // ─── CART ITEM ROW ────────────────────────────────────────────────────────────
@@ -104,16 +113,20 @@ function SuccessModal({ visible, txId, onClose, theme }: SuccessModalProps) {
 // ─── CART SCREEN ──────────────────────────────────────────────────────────────
 export default function CartScreen() {
   const { theme } = useTheme();
-  const { cart, increaseQty, decreaseQty, totalPrice, clearCart, cartError, clearCartError } = useCart();
+  const dispatch = useAppDispatch();
+  const cart = useAppSelector(selectCart);
+  const totalPrice = useAppSelector(selectTotalPrice);
+  const cartError = useAppSelector(selectCartError);
+  const historyError = useAppSelector(selectHistoryError);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { addTransaction, historyError, clearHistoryError } = useHistory();
   const [lastTxId, setLastTxId] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Error alerts
   useEffect(() => {
     if (cartError) {
       Alert.alert("Kesalahan Keranjang", cartError, [
-        { text: "OK", onPress: clearCartError },
+        { text: "OK", onPress: () => dispatch(clearCartError()) },
       ]);
     }
   }, [cartError]);
@@ -121,7 +134,7 @@ export default function CartScreen() {
   useEffect(() => {
     if (historyError) {
       Alert.alert("Kesalahan Transaksi", historyError, [
-        { text: "OK", onPress: clearHistoryError },
+        { text: "OK", onPress: () => dispatch(clearHistoryError()) },
       ]);
     }
   }, [historyError]);
@@ -132,10 +145,6 @@ export default function CartScreen() {
         Alert.alert("Keranjang Kosong", "Tambahkan produk terlebih dahulu.");
         return;
       }
-      if (totalPrice <= 0) {
-        throw new Error("Total harga tidak valid.");
-      }
-
       Alert.alert(
         "Konfirmasi Checkout",
         `Total: Rp${totalPrice.toLocaleString("id-ID")}\n\nLanjutkan checkout?`,
@@ -143,27 +152,24 @@ export default function CartScreen() {
           { text: "Batal", style: "cancel" },
           {
             text: "Checkout",
-            style: "default",
             onPress: () => {
               try {
-                const txId = addTransaction(cart, totalPrice);
-                if (!txId) {
-                  throw new Error("Gagal membuat ID transaksi.");
-                }
+                const action = addTransaction({ items: cart, total: totalPrice });
+                dispatch(action);
+                const txId = action.payload.id;
+                if (!txId) throw new Error("Gagal membuat ID transaksi.");
                 setLastTxId(txId);
-                clearCart();
+                dispatch(clearCart());
                 setShowSuccess(true);
               } catch (e) {
-                const msg = e instanceof Error ? e.message : "Terjadi kesalahan saat checkout.";
-                Alert.alert("Checkout Gagal", msg);
+                Alert.alert("Checkout Gagal", e instanceof Error ? e.message : "Terjadi kesalahan.");
               }
             },
           },
         ]
       );
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Terjadi kesalahan.";
-      Alert.alert("Kesalahan", msg);
+      Alert.alert("Kesalahan", e instanceof Error ? e.message : "Terjadi kesalahan.");
     }
   };
 
