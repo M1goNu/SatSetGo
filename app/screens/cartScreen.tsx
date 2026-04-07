@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -104,32 +104,67 @@ function SuccessModal({ visible, txId, onClose, theme }: SuccessModalProps) {
 // ─── CART SCREEN ──────────────────────────────────────────────────────────────
 export default function CartScreen() {
   const { theme } = useTheme();
-  const { cart, increaseQty, decreaseQty, totalPrice, clearCart } = useCart();
+  const { cart, increaseQty, decreaseQty, totalPrice, clearCart, cartError, clearCartError } = useCart();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { addTransaction } = useHistory();
+  const { addTransaction, historyError, clearHistoryError } = useHistory();
   const [lastTxId, setLastTxId] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  useEffect(() => {
+    if (cartError) {
+      Alert.alert("Kesalahan Keranjang", cartError, [
+        { text: "OK", onPress: clearCartError },
+      ]);
+    }
+  }, [cartError]);
 
-    Alert.alert(
-      "Konfirmasi Checkout",
-      `Total: Rp${totalPrice.toLocaleString("id-ID")}\n\nLanjutkan checkout?`,
-      [
-        { text: "Batal", style: "cancel" },
-        {
-          text: "Checkout",
-          style: "default",
-          onPress: () => {
-            const txId = addTransaction(cart, totalPrice);
-            setLastTxId(txId);
-            clearCart();
-            setShowSuccess(true);
+  useEffect(() => {
+    if (historyError) {
+      Alert.alert("Kesalahan Transaksi", historyError, [
+        { text: "OK", onPress: clearHistoryError },
+      ]);
+    }
+  }, [historyError]);
+
+  const handleCheckout = () => {
+    try {
+      if (cart.length === 0) {
+        Alert.alert("Keranjang Kosong", "Tambahkan produk terlebih dahulu.");
+        return;
+      }
+      if (totalPrice <= 0) {
+        throw new Error("Total harga tidak valid.");
+      }
+
+      Alert.alert(
+        "Konfirmasi Checkout",
+        `Total: Rp${totalPrice.toLocaleString("id-ID")}\n\nLanjutkan checkout?`,
+        [
+          { text: "Batal", style: "cancel" },
+          {
+            text: "Checkout",
+            style: "default",
+            onPress: () => {
+              try {
+                const txId = addTransaction(cart, totalPrice);
+                if (!txId) {
+                  throw new Error("Gagal membuat ID transaksi.");
+                }
+                setLastTxId(txId);
+                clearCart();
+                setShowSuccess(true);
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : "Terjadi kesalahan saat checkout.";
+                Alert.alert("Checkout Gagal", msg);
+              }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Terjadi kesalahan.";
+      Alert.alert("Kesalahan", msg);
+    }
   };
 
   return (
