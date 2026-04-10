@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Navbar } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
+import { StatCard } from "../components/statCard";
 import { useTheme } from "../context/themeContext";
 import { useWishlist } from "../context/wishlistContext";
 import { selectCart } from "../store/cartSlice";
@@ -15,31 +10,9 @@ import { selectHistory } from "../store/historySlice";
 import { useAppSelector } from "../store/hooks";
 import { profileStyles as styles } from "../styleSheets/screensStyle";
 
-// ─── STAT CARD ────────────────────────────────────────────────────────────────
-interface StatCardProps {
-  label: string;
-  value: string | number;
-  emoji: string;
-}
-
-function StatCard({ label, value, emoji }: StatCardProps) {
-  const { theme } = useTheme();
-  return (
-    <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-      <Text style={styles.statEmoji}>{emoji}</Text>
-      <Text style={[styles.statValue, { color: theme.primary }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: theme.subtext }]}>{label}</Text>
-    </View>
-  );
-}
-
-// ─── PROFILE SCREEN ───────────────────────────────────────────────────────────
-// ⚠️  GANTI DATA BERIKUT DENGAN NIM DAN NAMA ANDA
 const STUDENT_NAME = "Rifqi Aldino Amin";
 const STUDENT_NIM = "00000093743";
-// Ganti dengan path gambar profil Anda: require('../assets/profile.jpg')
-// atau gunakan URI: { uri: 'https://...' }
-const PROFILE_IMAGE = {uri: 'https://randomuser.me/api/portraits/men/9.jpg'}; // set to require('../assets/profile.jpg')
+const PROFILE_IMAGE = {uri: 'https://randomuser.me/api/portraits/men/9.jpg'}; 
 
 export default function ProfileScreen() {
   const { theme, isDark, toggleTheme } = useTheme();

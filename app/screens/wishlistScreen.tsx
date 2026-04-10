@@ -1,12 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import {
-  Animated,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { Animated, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 import { EmptyState, Navbar, Toast } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
@@ -16,7 +9,6 @@ import { useWishlist } from "../context/wishlistContext";
 import { addToCart } from "../store/cartSlice";
 import { useAppDispatch } from "../store/hooks";
 import { wishlistStyles as styles } from "../styleSheets/screensStyle";
-
 
 // ─── SWIPEABLE WISHLIST ITEM ──────────────────────────────────────────────────
 interface WishlistItemProps {
@@ -29,7 +21,6 @@ function WishlistItem({ product, onDelete, onAddToCart }: WishlistItemProps) {
   const { theme } = useTheme();
   const swipeRef = useRef<Swipeable>(null);
 
-  // Right swipe action → Add to Cart (green)
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>
@@ -59,7 +50,6 @@ function WishlistItem({ product, onDelete, onAddToCart }: WishlistItemProps) {
     );
   };
 
-  // Left swipe action → Delete (red)
   const renderLeftActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>
@@ -114,7 +104,6 @@ function WishlistItem({ product, onDelete, onAddToCart }: WishlistItemProps) {
             Rp{product.price.toLocaleString("id-ID")}
           </Text>
         </View>
-        {/* Swipe hint indicator */}
         <View style={styles.swipeHint}>
           <Text style={[styles.swipeHintText, { color: theme.subtext }]}>⟵ ⟶</Text>
         </View>

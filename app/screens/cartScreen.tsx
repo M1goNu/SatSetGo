@@ -1,26 +1,13 @@
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+// app/screens/cartScreen.tsx
+import React, { useState } from "react";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SPACING } from "../appStyle";
+import { ConfirmModal } from "../components/confirmModal";
 import { EmptyState, Navbar, PrimaryButton } from "../components/SharedComponents";
 import { Sidebar } from "../components/Sidebar";
-import { CartItem } from "../context/cartContext";
+import { SuccessModal } from "../components/successModal";
 import { useTheme } from "../context/themeContext";
-import {
-  clearCart, clearCartError,
-  decreaseQty,
-  increaseQty,
-  selectCart,
-  selectCartError,
-  selectTotalPrice
-} from "../store/cartSlice";
+import { CartItem, clearCart, clearCartError, decreaseQty, increaseQty, selectCart, selectCartError, selectTotalPrice, } from "../store/cartSlice";
 import { addTransaction, clearHistoryError, selectHistoryError } from "../store/historySlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { cartStyles as styles } from "../styleSheets/screensStyle";
@@ -34,20 +21,11 @@ interface CartRowProps {
 
 function CartRow({ item, onIncrease, onDecrease }: CartRowProps) {
   const { theme } = useTheme();
-
   return (
     <View style={[styles.row, { borderBottomColor: theme.border }]}>
-      
-      {/* Product image */}
       <View style={[styles.imgBox, { backgroundColor: theme.accent }]}>
-        <Image
-          source={item.image}
-          style={styles.rowImage}
-          resizeMode="cover"
-        />
+        <Image source={item.image} style={styles.rowImage} resizeMode="cover" />
       </View>
-
-      {/* Info */}
       <View style={styles.rowInfo}>
         <Text style={[styles.rowName, { color: theme.text }]} numberOfLines={1}>
           {item.name}
@@ -56,8 +34,6 @@ function CartRow({ item, onIncrease, onDecrease }: CartRowProps) {
           Rp{item.price.toLocaleString("id-ID")}
         </Text>
       </View>
-
-      {/* Qty control */}
       <View style={styles.qtyRow}>
         <TouchableOpacity
           onPress={onDecrease}
@@ -66,9 +42,7 @@ function CartRow({ item, onIncrease, onDecrease }: CartRowProps) {
         >
           <Text style={[styles.qtyBtnText, { color: theme.text }]}>−</Text>
         </TouchableOpacity>
-
         <Text style={[styles.qtyNum, { color: theme.text }]}>{item.qty}</Text>
-
         <TouchableOpacity
           onPress={onIncrease}
           style={[styles.qtyBtn, { backgroundColor: theme.primary }]}
@@ -81,35 +55,6 @@ function CartRow({ item, onIncrease, onDecrease }: CartRowProps) {
   );
 }
 
-// ─── CHECKOUT SUCCESS MODAL ────────────────────────────────────────────────────
-interface SuccessModalProps {
-  visible: boolean;
-  txId: string;
-  onClose: () => void;
-  theme: ReturnType<typeof useTheme>["theme"];
-}
-
-function SuccessModal({ visible, txId, onClose, theme }: SuccessModalProps) {
-  return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Text style={styles.successEmoji}>🎉</Text>
-          <Text style={[styles.successTitle, { color: theme.text }]}>Checkout Berhasil!</Text>
-          <Text style={[styles.successSub, { color: theme.subtext }]}>
-            Transaksi disimpan di History
-          </Text>
-          <View style={[styles.txBox, { backgroundColor: theme.primaryLight, borderColor: theme.primary }]}>
-            <Text style={[styles.txLabel, { color: theme.subtext }]}>Kode Transaksi</Text>
-            <Text style={[styles.txId, { color: theme.primary }]}>{txId}</Text>
-          </View>
-          <PrimaryButton label="Oke, Tutup" onPress={onClose} style={{ marginTop: SPACING.lg, alignSelf: "stretch" }} />
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
 // ─── CART SCREEN ──────────────────────────────────────────────────────────────
 export default function CartScreen() {
   const { theme } = useTheme();
@@ -118,64 +63,60 @@ export default function CartScreen() {
   const totalPrice = useAppSelector(selectTotalPrice);
   const cartError = useAppSelector(selectCartError);
   const historyError = useAppSelector(selectHistoryError);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [lastTxId, setLastTxId] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Error alerts
-  useEffect(() => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [lastTxId, setLastTxId] = useState("");
+  const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+
+  // Error dari Redux ditampilkan via ConfirmModal (web-safe, tidak pakai Alert)
+  React.useEffect(() => {
     if (cartError) {
-      Alert.alert("Kesalahan Keranjang", cartError, [
-        { text: "OK", onPress: () => dispatch(clearCartError()) },
-      ]);
+      setErrorModal({ title: "Kesalahan Keranjang", message: cartError });
+      dispatch(clearCartError());
     }
   }, [cartError]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (historyError) {
-      Alert.alert("Kesalahan Transaksi", historyError, [
-        { text: "OK", onPress: () => dispatch(clearHistoryError()) },
-      ]);
+      setErrorModal({ title: "Kesalahan Transaksi", message: historyError });
+      dispatch(clearHistoryError());
     }
   }, [historyError]);
 
   const handleCheckout = () => {
+    if (cart.length === 0) {
+      setErrorModal({
+        title: "Keranjang Kosong",
+        message: "Tambahkan produk dari halaman utama terlebih dahulu.",
+      });
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  const handleConfirmed = () => {
     try {
-      if (cart.length === 0) {
-        Alert.alert("Keranjang Kosong", "Tambahkan produk terlebih dahulu.");
-        return;
-      }
-      Alert.alert(
-        "Konfirmasi Checkout",
-        `Total: Rp${totalPrice.toLocaleString("id-ID")}\n\nLanjutkan checkout?`,
-        [
-          { text: "Batal", style: "cancel" },
-          {
-            text: "Checkout",
-            onPress: () => {
-              try {
-                const action = addTransaction({ items: cart, total: totalPrice });
-                dispatch(action);
-                const txId = action.payload.id;
-                if (!txId) throw new Error("Gagal membuat ID transaksi.");
-                setLastTxId(txId);
-                dispatch(clearCart());
-                setShowSuccess(true);
-              } catch (e) {
-                Alert.alert("Checkout Gagal", e instanceof Error ? e.message : "Terjadi kesalahan.");
-              }
-            },
-          },
-        ]
-      );
+      setShowConfirm(false);
+      const action = addTransaction({ items: cart, total: totalPrice });
+      dispatch(action);
+      const txId = action.payload.id;
+      if (!txId) throw new Error("Gagal membuat ID transaksi.");
+      setLastTxId(txId);
+      dispatch(clearCart());
+      setShowSuccess(true);
     } catch (e) {
-      Alert.alert("Kesalahan", e instanceof Error ? e.message : "Terjadi kesalahan.");
+      setErrorModal({
+        title: "Checkout Gagal",
+        message: e instanceof Error ? e.message : "Terjadi kesalahan.",
+      });
     }
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.bg }]}>
-      <Navbar title="Keranjang" onMenuPress={() => setSidebarOpen(true)}/>
+      <Navbar title="Keranjang" onMenuPress={() => setSidebarOpen(true)} />
 
       {cart.length === 0 ? (
         <EmptyState
@@ -191,22 +132,20 @@ export default function CartScreen() {
             renderItem={({ item }) => (
               <CartRow
                 item={item}
-                onIncrease={() => increaseQty(item.id)}
-                onDecrease={() => decreaseQty(item.id)}
+                onIncrease={() => dispatch(increaseQty(item.id))}
+                onDecrease={() => dispatch(decreaseQty(item.id))}
               />
             )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 200 }}
           />
 
-          {/* Summary & Checkout */}
           <View
             style={[
               styles.summaryCard,
               { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow },
             ]}
           >
-            {/* Price breakdown */}
             {cart.map((item) => (
               <View key={item.id} style={styles.summaryRow}>
                 <Text style={[styles.summaryItem, { color: theme.subtext }]}>
@@ -217,16 +156,13 @@ export default function CartScreen() {
                 </Text>
               </View>
             ))}
-
             <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: theme.text }]}>Total</Text>
               <Text style={[styles.totalPrice, { color: theme.primary }]}>
                 Rp{totalPrice.toLocaleString("id-ID")}
               </Text>
             </View>
-
             <PrimaryButton
               label="Checkout"
               onPress={handleCheckout}
@@ -236,18 +172,36 @@ export default function CartScreen() {
         </>
       )}
 
+      {/* ── Konfirmasi checkout ── */}
+      <ConfirmModal
+        visible={showConfirm}
+        title="Konfirmasi Checkout"
+        message={`Total pembayaran\nRp${totalPrice.toLocaleString("id-ID")}`}
+        confirmLabel="Checkout Sekarang"
+        cancelLabel="Batal"
+        onConfirm={handleConfirmed}
+        onCancel={() => setShowConfirm(false)}
+      />
+
+      {/* ── Error modal (ganti Alert.alert) ── */}
+      <ConfirmModal
+        visible={!!errorModal}
+        title={errorModal?.title ?? ""}
+        message={errorModal?.message}
+        confirmLabel="OK"
+        cancelLabel=""
+        onConfirm={() => setErrorModal(null)}
+        onCancel={() => setErrorModal(null)}
+      />
+
+      {/* ── Sukses ── */}
       <SuccessModal
         visible={showSuccess}
         txId={lastTxId}
         onClose={() => setShowSuccess(false)}
-        theme={theme}
       />
 
-      <Sidebar
-        visible={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <Sidebar visible={sidebarOpen} onClose={() => setSidebarOpen(false)} />
     </View>
   );
 }
-

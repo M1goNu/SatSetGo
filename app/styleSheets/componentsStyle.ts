@@ -1,16 +1,8 @@
 import { Platform, StyleSheet } from "react-native";
 import { FONT, FONT_SIZE, RADIUS, SPACING } from "../appStyle";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// componentsStyle.ts
-// Berisi StyleSheet untuk seluruh file di folder /components:
-//   SharedComponents  · ProductCard  · Sidebar  · BottomTabBar  · AppNavigator
-// ─────────────────────────────────────────────────────────────────────────────
-
 // ─── SHARED COMPONENTS ────────────────────────────────────────────────────────
-// Dipakai oleh: Navbar · SectionLabel · Toast · EmptyState · PrimaryButton
 export const sharedStyles = StyleSheet.create({
-  // Navbar
   navbar: {
     flexDirection: "row",
     alignItems: "center",
@@ -249,4 +241,72 @@ export const bottomTabStyles = StyleSheet.create({
 // ─── APP NAVIGATOR ────────────────────────────────────────────────────────────
 export const appNavigatorStyles = StyleSheet.create({
   container: { flex: 1 },
+});
+
+
+export const confirmModalStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: SPACING.xl,
+  },
+
+  card: {
+    width: "100%",
+    maxWidth: 360,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    padding: SPACING.xl,
+    gap: SPACING.sm,
+  },
+
+  title: {
+    fontSize: FONT_SIZE.xl,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+
+  message: {
+    fontSize: FONT_SIZE.md,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+
+  divider: {
+    height: 1,
+    marginVertical: SPACING.sm,
+  },
+
+  buttonRow: {
+    flexDirection: "row",
+    gap: SPACING.sm,
+  },
+
+  cancelBtn: {
+    flex: 1,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+
+  confirmBtn: {
+    flex: 1,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.full,
+    alignItems: "center",
+  },
+
+  cancelText: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: "700",
+  },
+
+  confirmText: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: "800",
+    color: "#fff",
+  },
 });

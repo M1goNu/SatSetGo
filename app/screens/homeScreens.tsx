@@ -16,7 +16,7 @@ import { useTheme } from "../context/themeContext";
 import { homeStyles as styles } from "../styleSheets/screensStyle";
 
 const { width: SCREEN_W } = Dimensions.get("window");
-const SLIDE_H = 180;
+const SLIDE_RATIO = 16 / 7;
 
 // ─── HIGHLIGHT SLIDE ──────────────────────────────────────────────────────────
 function HighlightSlide({ item }: { item: ReturnType<typeof useProducts>["highlights"][0] }) {
@@ -76,7 +76,7 @@ export default function HomeScreen() {
         <View style={styles.carouselWrap}>
           <Carousel
             width={SCREEN_W - SPACING.lg * 2}
-            height={SLIDE_H}
+            height={(SCREEN_W - SPACING.lg * 2) / SLIDE_RATIO}
             data={highlights}
             autoPlay
             autoPlayInterval={3000}

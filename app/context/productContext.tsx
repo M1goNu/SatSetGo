@@ -6,7 +6,7 @@ export interface Product {
   id: number;
   name: string;
   price: number;
-  image: ImageSourcePropType;   // require('../assets/images/xxx.png')
+  image: ImageSourcePropType;   
   tag: string;
   description: string;
 }
@@ -15,14 +15,11 @@ export interface Highlight {
   id: number;
   name: string;
   discount: string;
-  image: ImageSourcePropType;   // require('../assets/images/xxx.png')
+  image: ImageSourcePropType;  
   bgStart: string;
   bgEnd: string;
 }
 
-// ─── PRODUK ───────────────────────────────────────────────────────────────────
-// Letakkan foto di: app/assets/images/
-// Ganti setiap require() dengan path foto yang sesuai
 export const PRODUCTS: Product[] = [
   {
     id: 1,
@@ -90,8 +87,6 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
-// ─── HIGHLIGHTS SLIDER ────────────────────────────────────────────────────────
-// Gunakan foto landscape (rasio 2:1) untuk tampilan terbaik di carousel
 export const HIGHLIGHTS: Highlight[] = [
   {
     id: 1,
@@ -135,7 +130,6 @@ export const HIGHLIGHTS: Highlight[] = [
   },
 ];
 
-// ─── CONTEXT ──────────────────────────────────────────────────────────────────
 interface ProductContextType {
   products: Product[];
   highlights: Highlight[];

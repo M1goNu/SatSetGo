@@ -1,12 +1,6 @@
 import { StyleSheet } from "react-native";
 import { FONT_SIZE, RADIUS, SPACING } from "../appStyle";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// screensStyle.ts
-// Berisi StyleSheet untuk seluruh file di folder /screens:
-//   homeScreen  · cartScreen  · wishlistScreen  · historyScreen  · profileScreen
-// ─────────────────────────────────────────────────────────────────────────────
-
 // ─── HOME SCREEN ─────────────────────────────────────────────────────────────
 export const homeStyles = StyleSheet.create({
   screen: { flex: 1 },
@@ -28,6 +22,7 @@ export const homeStyles = StyleSheet.create({
     justifyContent: "flex-end",
     padding: SPACING.lg,
     position: "relative",
+    
   },
   slideImage: {
     ...StyleSheet.absoluteFillObject,
@@ -175,6 +170,7 @@ export const cartStyles = StyleSheet.create({
   },
   txLabel: { fontSize: FONT_SIZE.xs, marginBottom: 4 },
   txId: { fontSize: FONT_SIZE.xxl, fontWeight: "800", letterSpacing: 3 },
+
 });
 
 // ─── WISHLIST SCREEN ─────────────────────────────────────────────────────────
